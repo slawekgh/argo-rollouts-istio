@@ -974,7 +974,7 @@ no ale jeśli do VS trzeba dorzucać gateway żeby z nim porozmawiać to zaczyna
 ### ZRÓBMY ZATEM PODSUMOWANIE JAK DZIAŁA Host-level Traffic-Split 
 
  - administrator zamiast 2xDeploy powołuje ROLLOUT w którym:
-      - wskazuje na VirtService którym AR będzie kręcił via wstawianie wag (dlatego podaje się tam nazwę route - np "primary") 
+      - wskazuje na VirtService którym AR będzie kręcił via wstawianie wag (dlatego podaje się tam nazwę route - np "primary") 
       - wskazuje na 2 x k8s-SVC (podaje tylko ich nazwy)  
       - określa steps dla promocji rolloutu oraz pause{} 
       - emuluje Deploy (wskazuje image, resources itd) 
