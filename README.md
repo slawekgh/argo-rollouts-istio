@@ -1,6 +1,14 @@
-# argo-rollouts-istio
+# ARGO-ROLLOUTS Z ISTIO 
 
-omawiamy tu mechanizm integracji argo-rollouts z traffic splittingiem w ISTIO 
+Omawiamy tu mechanizm integracji argo-rollouts z traffic splittingiem w ISTIO 
+
+Celem wprowadzenia przedstawione będzie najpierw zwykłe podejście w ISTIO do Traffic Splitting i zwykłe (proste) podstawy Argo-Rollouts 
+
+Następnie wszystko to zostanie połączone w całość co pozwoli osiągnąć ISTIO Traffic Splitting z Argo-Rollouts
+
+Argo-Rollouts będzie w 2 opcjach - Host-level Traffic Splitting i Subset-level Traffic Splitting
+
+
 
 # Instalacja 
 
