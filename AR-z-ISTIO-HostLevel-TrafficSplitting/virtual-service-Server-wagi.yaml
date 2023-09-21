@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: virtservice-app07
+  #namespace: istio-system
+spec:
+  hosts:
+  - app07-vs
+  - uk.bookinfo7.com
+  gateways:
+  #- mesh
+  - mygateway
+  http:
+  - route:
+    - destination:
+        host: stable-service #Should match rollout.spec.strategy.canary.stableService
+      weight: 50
+    - destination:
+        host: canary-service #Should match rollout.spec.strategy.canary.canaryService
+      weight: 50
+    name: primary # Should match rollout.spec.strategy.canary.trafficRouting.istio.virtualServices.routes
+

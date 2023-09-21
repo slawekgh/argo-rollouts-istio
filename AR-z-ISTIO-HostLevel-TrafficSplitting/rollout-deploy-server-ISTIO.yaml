@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: test-rollout-istio
+spec:
+  replicas: 1
+  strategy:
+    canary:
+      canaryService: canary-service
+      stableService: stable-service
+      trafficRouting:
+        istio:
+          virtualServices:
+          - name: virtservice-app07
+            routes:
+            - primary           
+          #- name: virtservice-app07-2 #jakis inny virt-service 
+          #  routes:
+          #  - primary           
+      steps:
+      - setWeight: 5
+      - pause: {}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      name: app07
+  template:
+    metadata:
+      labels:
+        name: app07
+    spec:
+      containers:
+      - image: gimboo/nginx_nonroot
+        name: app07
+        resources: {}
+
