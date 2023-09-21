@@ -107,6 +107,10 @@ Powyższe to podstawy istiowych podstaw ale trzeba to mieć przed oczami przy an
 
 
 
+
+
+
+
 # ARGO ROLLOUTS bez istio - BASICS
 
 Zasady działania AR , chwilowo bez istio 
