@@ -906,3 +906,68 @@ spec:
 ```
 
 
+
+
+Niestety nie do końca wiadomo jak to wszystko przetestować w środku klastra bo mamy 2 różne k8s-svc , a próba łączenia się na hostname z VS kończy się błędem (zresztą próba ta sensu nie miała bo nikt jej w DNS nie założył) 
+
+```
+
+nginx@consumer-58f6fd4c95-fq2r7:/$ curl app07-vs:8080
+curl: (6) Could not resolve host: app07-vs
+
+```
+
+
+być może jedyną opcją na dostanie się do usługi (i obejrzenie że scenariusz 95/5 działa) jest dostęp via gateway
+
+
+trzeba odkomentować sekcje dla gateway w definicji VS:
+
+```
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: virtservice-app07
+  #namespace: istio-system
+spec:
+  hosts:
+  - app07-vs
+  - uk.bookinfo7.com
+  gateways:
+  - mygateway
+  http:
+  - route:
+    - destination:
+        host: stable-service #Should match rollout.spec.strategy.canary.stableService
+      weight: 50
+    - destination:
+        host: canary-service #Should match rollout.spec.strategy.canary.canaryService
+      weight: 50
+    name: primary # Should match rollout.spec.strategy.canary.trafficRouting.istio.virtualServices.routes
+
+```
+
+i dodac tenże gateway:
+
+```
+
+$ kk apply -f EXPOSE_gateway_simple_MATCH_URI_PREFIX.yaml
+
+```
+
+
+faktycznie ważenie wydaje się że działa  
+
+```
+
+nginx@consumer-58f6fd4c95-fq2r7:/$ curl -k --resolve uk.bookinfo7.com:80:10.128.0.5 http://uk.bookinfo7.com
+
+```
+
+
+no ale jeśli do VS trzeba dorzucać gateway żeby z nim porozmawiać to zaczyna to powoli nie mieć sensu 
+
+
+
+
