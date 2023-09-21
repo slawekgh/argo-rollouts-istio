@@ -471,12 +471,19 @@ test-rollout-istio-746b5594b8-pv4wr   2/2     Running   0          11m 
  - to nie admin ale tym razem AR zaczyna zarządzać TraficSplitingiem poprzez ustawianie wag w VirtService - 100/0 i 95/5 ORAZ poprzez wstawanie do subsetów w naszej DestinationRule warunków opartych na rollouts-pod-template-hash
 
 Wróćmy do zmian w rolloutach - do tej pory zmienialiśmy jedynie obraz (via kubectl argo rollouts set image test-rollout-istio app07=gimboo/nginx_nonroot3)
+
+
 sprawdźmy jak to działa ale z podmianą CM, a zatem wprowadźmy nowy rollout zawierający odwołanie do CM + nowy obiekt CM
-```rollout-deploy-server-ISTIO-ConfigMap.yaml
+
+```
+rollout-deploy-server-ISTIO-ConfigMap.yaml
 config-map-01.yaml
 ```
+
 różnica w kontekście deploymentu (a właściwie oczywiście jego emulacji) jest następująca:
-```$ diff rollout-deploy-server-ISTIO.yaml rollout-deploy-server-ISTIO-ConfigMap.yaml.optional
+
+```
+$ diff rollout-deploy-server-ISTIO.yaml rollout-deploy-server-ISTIO-ConfigMap.yaml.optional
 35c35,43
 <
 ---
@@ -490,8 +497,15 @@ różnica w kontekście deploymentu (a właściwie oczywiście jego emulacji) je
 >           # Provide the name of the ConfigMap you want to mount.
 >           name: cm-01
 ```
-```kk apply -f  rollout-deploy-server-ISTIO-ConfigMap.yaml
-kk apply -f config-map-01.yaml```
+
+dodajemy:
+
+```
+kk apply -f  rollout-deploy-server-ISTIO-ConfigMap.yaml
+kk apply -f config-map-01.yaml
+
+
+```
 
 Po wgraniu nowej wersji rolloutu (to oczywiście ten sam AR ale z jedną małą zmianą bo ten AR używa od tej pory CM) pojawia sie nowy rollout , zaś jak się wejdzie na PODa to widać zmienne z ConfigMapy:
 ```$ kk exec -ti test-rollout-istio-8675765c8c-4ffmt bash
