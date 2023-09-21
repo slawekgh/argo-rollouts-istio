@@ -541,12 +541,18 @@ kube-root-ca.crt   1      5h
 
 
 idąc za: https://argo-rollouts.readthedocs.io/en/stable/getting-started/#2-updating-a-rollout
+
 *Just as with Deployments, any change to the Pod template field (spec.template) results in a new version (i.e. ReplicaSet) to be deployed.* * Updating a Rollout involves modifying the rollout spec, typically changing the container image field with a new version, and then running kubectl apply against the new manifest. As a convenience, the rollouts plugin provides a set image command, which performs these steps against the live rollout object in-place*
 
-Jakakolwiek modyfikacja AR via set image czy jakiekolwiek zmiany w definicji AR powodują uruchomienie mechanizmu rolloutu 
+
+widać że jakakolwiek modyfikacja AR via set image czy jakiekolwiek zmiany w definicji AR powodują uruchomienie mechanizmu rolloutu 
+
 Jedno co dziwi to jak widać do set image dorobiono CLI (kubectl argo rollouts set image test-rollout-istio app07=gimboo/nginx_nonroot2) a do innych modyfikacji już nie 
-zatem musimy sami sobie zmienić w rollout.yaml wskazanie na inną config-mapę 
-```$ diff rollout-deploy-server-ISTIO-ConfigMap.yaml rollout-deploy-server-ISTIO-ConfigMap-02.yaml
+
+Zatem musimy sami sobie zmienić w rollout.yaml wskazanie na inną config-mapę 
+
+```
+$ diff rollout-deploy-server-ISTIO-ConfigMap.yaml rollout-deploy-server-ISTIO-ConfigMap-02.yaml
 43c43
 <           name: cm-01
 ---
@@ -554,10 +560,14 @@ zatem musimy sami sobie zmienić w rollout.yaml wskazanie na inną config-mapę�
 
 $ kk apply -f  rollout-deploy-server-ISTIO-ConfigMap-02.yaml
 rollout.argoproj.io/test-rollout-istio configured
+
 ```
+
 pojawił się nowy POD i pojawił się nowy ROLLOUT 
 niby mała zmiana (zamontowanie innej CM) a jednak jest zmianą -  więc AR powołało nową revision i wstrzymało ją z wagą na 5% w VS
-```$ kubectl argo rollouts get rollout test-rollout-istio
+
+```
+$ kubectl argo rollouts get rollout test-rollout-istio
 Name:            test-rollout-istio
 Namespace:       test-ar-istio
 Status:          ॥ Paused
@@ -588,9 +598,12 @@ $ kk exec -ti test-rollout-istio-8675765c8c-4ffmt -- cat /config/key01 ; echo
 alamakota
 $ kk exec -ti test-rollout-istio-549bbd66c6-h5km8 -- cat /config/key01 ; echo
 alamakota 2
+
 ```
 warto zaznaczyć że w AR da się podmieniać via CLI tylko image - jakiekolwiek inne zmiany trzeba robić ręcznie modyfikując rollout spec
+
 zaś modyfikując AR otrzymujemy nową rewizję AR 
+
 *Updating a Rollout involves modifying the rollout spec*
 
 
