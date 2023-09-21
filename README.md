@@ -411,7 +411,7 @@ Tu z kolei różnic między plikami VS i DestinationRule nie ma (pomijając że 
 
 
 
-po wgraniu naszego destination-rule zostaje ona natychmiast zmodyfikowana przez AR:
+po wgraniu naszego destination-rule zostaje ona natychmiast zmodyfikowana przez AR (patrzymy na rollouts-pod-template-hash):
 
 
 ```
@@ -436,11 +436,16 @@ spec:
 
 ```
 
-i w takim classic-trybie-istio (gdzie mamy 2 osobne deploye - jeden ma labels na PODach version: v1 , drugi ma v2 ) to nasza DestinationRule jest oparta o te labele version-v1-v2tu w AR zaszła zmiana - skoro AR modyfikuje za naszymi plecami naszą dest-rule (dodając jej też extra labele rollouts-pod-template-hash) to wlaśnie na tej labeli różnicowane są PODy 
+Co ważne - w classic-trybie-istio (gdzie mamy 2 osobne deploye - jeden ma labels na PODach version: v1 , drugi ma v2 ) to nasza DestinationRule jest oparta o te labele version-v1-v2i
+
+tu w AR zaszła zmiana - skoro AR modyfikuje za naszymi plecami naszą dest-rule (dodając jej też extra labele rollouts-pod-template-hash) to wlaśnie na tej labeli różnicowane są PODy:
+
+
+```
 $ kk get po --show-labels
 NAME                                  READY   STATUS    RESTARTS   AGE   LABELS
 test-rollout-istio-5bfbf9599-dbcd6    2/2     Running   0          21m   name=app07,rollouts-pod-template-hash=5bfbf9599,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=test-rollout-istio-5bfbf9599,service.istio.io/canonical-revision=latest,topology.istio.io/network=a-r-02-default
 test-rollout-istio-746b5594b8-pv4wr   2/2     Running   0          11m   name=app07,rollouts-pod-template-hash=746b5594b8,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=test-rollout-istio-746b5594b8,service.istio.io/canonical-revision=latest,topology.istio.io/network=a-r-02-default
-
+```
 
 
