@@ -253,6 +253,10 @@ Zacznijmy od tego że Argo Rollout w kontekście ISTIO dostarcza 2 odrębne pode
 *Subset-level traffic splitting*
 
 
+
+## Subset-level 
+
+
 Subset-level jest bliższy klasycznemu podejściu ISTIO-way więc od niego zaczniemy
 
 https://argo-rollouts.readthedocs.io/en/stable/features/traffic-management/istio/#subset-level-traffic-splitting
