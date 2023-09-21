@@ -10,7 +10,7 @@ Argo-Rollouts będzie w 2 opcjach - Host-level Traffic Splitting i Subset-level 
 
 
 
-# Instalacja 
+# Instalacja Argo Rollouts
 
 ```
 $ kubectl create namespace argo-rollouts
