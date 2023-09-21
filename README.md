@@ -635,9 +635,13 @@ spec:
       weight: 50
     name: primary
 ```
+
 ogólnie można sobie wygodnie porównać zwykłe wdrożenie Traffic-Splittingu via ISTIO-bez-AR z takim gdzie to AR zarządza ISTIO 
+
 w repo w katalogu AR-z-ISTIO-SubsetLevelTrafficSplitting jest podfolder ISTIO-classic a w nim wszystkie obiekty do wdrożenia drugiego zestawu usług - jak sie wdroży obiekty z niego to mamy stan gdzie app07 jest oparte o ArgoRollouts a app08 to gołe ISTIO 
+
 ```
+
 $ kk get vs
 NAME                GATEWAYS                             HOSTS                                                          AGE
 virtservice-app07   ["mesh","test-ar-istio/mygateway"]   ["app07.test-ar-istio.svc.cluster.local","uk.bookinfo7.com"]   7h51m
