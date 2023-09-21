@@ -245,9 +245,13 @@ i to tyle podstawowej teorii o AR 
 
 
 Zacznijmy od tego że Argo Rollout w kontekście ISTIO dostarcza 2 odrębne podejścia: 
+
 *Istio provides two approaches for weighted traffic splitting, both approaches are available as options in Argo Rollouts:
+
 Host-level traffic splitting
+
 Subset-level traffic splitting
+
 *
 
 
