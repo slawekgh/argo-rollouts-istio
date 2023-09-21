@@ -703,7 +703,7 @@ omawiają tu bowiem nieco inną koncepcję - Host-level Traffic Splitting
 *The first approach to traffic splitting using Argo Rollouts and Istio, is splitting between two hostnames, or Kubernetes Services: a canary Service and a stable Service*
 
 
-Folder w tym repo z plikami YAML: AR-z-ISTIO-HostLevel-LevelTrafficSplitting
+Folder w tym repo z plikami YAML: AR-z-ISTIO-HostLevel-TrafficSplitting
 
 ```
 kubectl create ns test-ar-istio-2
