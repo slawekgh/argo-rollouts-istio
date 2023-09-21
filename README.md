@@ -189,10 +189,10 @@ NAME                                      KIND        STA
 ```
 
 
-Jak widać AR zbblokował się na  20% (tak jest w definicji) i czeka na dalsze kroki z naszej strony 
+Jak widać AR zblokował się na  20% (tak jest w definicji) i czeka na dalsze kroki z naszej strony 
 
 
-When the demo rollout reaches the second step, we can see from the plugin that the Rollout is in a paused state, and now has 1 of 5 replicas running the new version of the pod template, and 4 of 5 replicas running the old version. This equates to the 20% canary weight as defined by the setWeight: 20 step.
+*When the demo rollout reaches the second step, we can see from the plugin that the Rollout is in a paused state, and now has 1 of 5 replicas running the new version of the pod template, and 4 of 5 replicas running the old version. This equates to the 20% canary weight as defined by the setWeight: 20 step.*
 
 
 ```
