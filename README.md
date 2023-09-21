@@ -406,12 +406,16 @@ $ cat /destination-rule-Server-v1-v2.yml
 ```
 
 
-Tu z kolei jest następująco:
+Tu z kolei różnic między plikami VS i DestinationRule nie ma (pomijając że dla wersji z AR trzeba w DestRule wstawić jakiś label generyczny (np name=app07) 
++jest jedna drobna bo w VS jak jest route to tu ma name=primary) nie ma znaczenia jak ustawimy wagi w VS.yaml bo AR i tak zaraz przejmie sprawy 
 
-różnic między plikami VS i DestRule nie ma (pomijając że dla wersji z AR trzeba w DestRule wstawić jakiś label generyczny (np name=app07) +jest jedna drobna bo w VS jak jest route to tu ma name=primary) nie ma znaczenia jak ustawimy wagi w VS.yaml bo AR i tak zaraz przejmie sprawy 
+
 
 po wgraniu naszego destination-rule zostaje ona natychmiast zmodyfikowana przez AR:
-slawek@L530:~/ARGO-ROLLOUTS/AR/AR-z-ISTIO-SubsetLevelTrafficSplitting$ kubectl get destinationrules destrule-app07 -o yamlapiVersion: networking.istio.io/v1beta1
+
+
+```
+$ kubectl get destinationrules destrule-app07 -o yamlapiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: destrule-app07
@@ -427,6 +431,10 @@ spec:
       name: app07
       rollouts-pod-template-hash: 5bfbf9599
     name: version-v2
+
+
+
+```
 
 i w takim classic-trybie-istio (gdzie mamy 2 osobne deploye - jeden ma labels na PODach version: v1 , drugi ma v2 ) to nasza DestinationRule jest oparta o te labele version-v1-v2tu w AR zaszła zmiana - skoro AR modyfikuje za naszymi plecami naszą dest-rule (dodając jej też extra labele rollouts-pod-template-hash) to wlaśnie na tej labeli różnicowane są PODy 
 $ kk get po --show-labels
