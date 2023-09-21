@@ -609,7 +609,7 @@ zaś modyfikując AR otrzymujemy nową rewizję AR 
 
 
 ### Dodajmy teraz GATEWAY 
-wykonuje sie to normalnie , jak w klasyku ISTIO:
+wykonuje sie to normalnie , jak w klasyku ISTIO, czyli dodając sekcje gateway do definicji VS:
 
 ```
 apiVersion: networking.istio.io/v1alpha3
