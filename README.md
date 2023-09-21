@@ -784,15 +784,19 @@ canary-service   ClusterIP   10.108.8.99    <none>        8080/TCP   43
 stable-service   ClusterIP   10.108.6.132   <none>        8080/TCP   43m
 
 $ kk get svc stable-service -o yaml
-[...]  selector:
+[...]
+  selector:
     name: app07
     rollouts-pod-template-hash: dd4cc6cb4
 [...]
+
 $ kk get svc canary-service -o yaml
-[...]  selector:
+[...]
+  selector:
     name: app07
     rollouts-pod-template-hash: dd4cc6cb4
 [...]
+
 $ kk get ep
 NAME             ENDPOINTS          AGE
 canary-service   10.104.0.23:8080   43m
