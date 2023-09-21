@@ -253,4 +253,117 @@ Zacznijmy od tego że Argo Rollout w kontekście ISTIO dostarcza 2 odrębne pode
 *Subset-level traffic splitting*
 
 
+Subset-level jest bliższy klasycznemu podejściu ISTIO-way więc od niego zaczniemy
+
+https://argo-rollouts.readthedocs.io/en/stable/features/traffic-management/istio/#subset-level-traffic-splitting
+
+Folder w tym repo z plikami YAML:  AR-z-ISTIO-SubsetLevelTrafficSplitting
+
+
+tworzymy osobny NS, labelujemy go celem istio-injection i zakładamy konieczne obiekty:
+
+```
+kubectl create ns test-ar-istio
+kubectl config set-context --current --namespace=test-ar-istio
+kubectl -n istio-system get pods -l app=istiod --show-labels | grep rev
+kubectl label namespace test-ar-istio istio-injection- istio.io/rev=asm-1162-2 --overwrite
+kubectl apply -f deploy-consumer.yaml
+kubectl apply -f destination-rule-Server-v1-v2.yaml
+kubectl apply -f rollout-deploy-server-ISTIO.yaml
+kubectl apply -f service_clusterip-consumer.yaml
+kubectl apply -f service_clusterip-Server-v1v2.yaml
+kubectl apply -f virtual-service-Server-wagi.yaml
+```
+
+teraz można wykonywac operacje wkoło AR:
+
+```
+kubectl argo rollouts set image test-rollout-istio app07=gimboo/nginx_nonroot3
+kubectl argo rollouts promote test-rollout-istio
+kubectl argo rollouts abort test-rollout-istioi
+```
+
+podczas testów widać że po SET wagi ustawiane są na 5 do 95 :
+
+```
+$ kk get vs
+NAME                GATEWAYS                             HOSTS                                                          AGE
+virtservice-app07   ["mesh","test-ar-istio/mygateway"]   ["app07.test-ar-istio.svc.cluster.local","uk.bookinfo7.com"]   9m41s 
+
+$ kk get vs virtservice-app07 -o yaml
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: virtservice-app07
+  namespace: test-ar-istio
+spec:
+  gateways:
+  - mesh
+  - test-ar-istio/mygateway
+  hosts:
+  - app07.test-ar-istio.svc.cluster.local
+  - uk.bookinfo7.com
+  http:
+  - name: primary
+    route:
+    - destination:
+        host: app07.test-ar-istio.svc.cluster.local
+        subset: version-v2
+      weight: 5
+    - destination:
+        host: app07.test-ar-istio.svc.cluster.local
+        subset: version-v1
+      weight: 95
+```
+
+zaś po PROMOTE na 100 do 0 
+
+```
+$ kk get vs virtservice-app07 -o yaml[...] 
+ http:
+  - name: primary
+    route:
+    - destination:
+        host: app07.test-ar-istio.svc.cluster.local
+        subset: version-v2
+      weight: 0
+    - destination:
+        host: app07.test-ar-istio.svc.cluster.local
+        subset: version-v1
+      weight: 100
+```
+
+dla przypomnienia w oryginalnym wsadowym pliku dla VS te wartości są zupełnie inne, ale nie ma to już znaczenia bo to AR zarządza od tej pory tymi wagami
+innymi słowy modyfikuje nasze obiekty bez naszej wiedzy: 
+
+```
+$ kk get  vs  -o yaml | grep -v apiVer| grep weight
+        weight: 100
+        weight: 0
+
+$ kubectl argo rollouts set image test-rollout-istio app07=gimboo/nginx_nonroot2
+rollout "test-rollout-istio" image updated
+
+$ kk get  vs  -o yaml | grep -v apiVer| grep weight
+        weight: 95
+        weight: 5
+
+$ kubectl argo rollouts promote test-rollout-istio
+rollout 'test-rollout-istio' promoted
+
+$ kk get  vs  -o yaml | grep -v apiVer| grep weight
+        weight: 100
+        weight: 0
+```
+
+to 95/0 bierze się oczwyiście stąd:
+
+```
+kind: Rollout
+[...]      steps:
+      - setWeight: 5
+
+```
+
+
 
