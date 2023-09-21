@@ -337,7 +337,7 @@ $ kk get vs virtservice-app07 -o yaml[...] 
       weight: 100
 ```
 
-dla przypomnienia w oryginalnym wsadowym pliku dla VS te wartości są zupełnie inne, ale nie ma to już znaczenia bo to AR zarządza od tej pory tymi wagami
+dla przypomnienia w oryginalnym wsadowym pliku dla VS te wartości były zupełnie inne, ale nie ma to już znaczenia bo to AR zarządza od tej pory tymi wagami - 
 innymi słowy modyfikuje nasze obiekty bez naszej wiedzy: 
 
 ```
