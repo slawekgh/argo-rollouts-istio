@@ -996,7 +996,9 @@ podsumowano  tu zresztą dosyć analitycznie cały mechanizm host-level-traffic
 *modify the VirtualService spec.http[].route[].weight to match the current desired canary weight*
 
 
-# Podsumowanie 
+# Subset-level Traffic Splitting vs Host-level Traffic Splitting 
+
+
 
 podejście Subset-level Traffic Splitting wydaje się być ISTIO-way i jest naturalnym powieleniem dotychczasowych mechanizmów dla ważenia ruchu w ISTIO 
 
