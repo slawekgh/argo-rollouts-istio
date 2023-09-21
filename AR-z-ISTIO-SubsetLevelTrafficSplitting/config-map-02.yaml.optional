@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-02
+data:
+  key01: "alamakota2"
+  key02: "ma2 "
+  key03: "kota2"
