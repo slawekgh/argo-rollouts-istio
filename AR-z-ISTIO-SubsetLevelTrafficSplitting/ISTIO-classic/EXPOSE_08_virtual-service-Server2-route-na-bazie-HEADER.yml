@@ -1,0 +1,24 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: virtservice-app08
+  #namespace: istio-system
+spec:
+  hosts:
+  - app08.test-ar-istio.svc.cluster.local
+  - uk.bookinfo8.com
+  gateways:
+  - mesh
+  - test-ar-istio/mygateway    
+  http:
+  - route:
+    - destination:
+        host: app08.test-ar-istio.svc.cluster.local
+        subset: version-v2
+      weight: 100
+    - destination:
+        host: app08.test-ar-istio.svc.cluster.local
+        subset: version-v1
+      weight: 0
+    name: primary
+

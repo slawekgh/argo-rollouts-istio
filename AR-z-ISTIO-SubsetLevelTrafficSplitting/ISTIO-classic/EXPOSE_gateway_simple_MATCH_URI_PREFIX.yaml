@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: mygateway
+  namespace: test-ar-istio
+spec:
+  selector:
+    #app: istio-ingressgateway
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - uk.bookinfo7.com
+    - app07.test-ar-istio.svc.cluster.local
+    - app08.test-ar-istio.svc.cluster.local
+    - uk.bookinfo8.com
