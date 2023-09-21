@@ -607,3 +607,79 @@ zaś modyfikując AR otrzymujemy nową rewizję AR 
 *Updating a Rollout involves modifying the rollout spec*
 
 
+
+### Dodajmy teraz GATEWAY 
+wykonuje sie to normalnie , jak w klasyku ISTIO:
+
+```
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: virtservice-app07
+spec:
+  hosts:
+  - app07.test-ar-istio.svc.cluster.local
+  - uk.bookinfo7.com
+  gateways:
+  - mesh
+  - test-ar-istio/mygateway
+  http:
+  - route:
+    - destination:
+        host: app07.test-ar-istio.svc.cluster.local
+        subset: version-v2
+      weight: 50
+    - destination:
+        host: app07.test-ar-istio.svc.cluster.local
+        subset: version-v1
+      weight: 50
+    name: primary
+```
+ogólnie można sobie wygodnie porównać zwykłe wdrożenie Traffic-Splittingu via ISTIO-bez-AR z takim gdzie to AR zarządza ISTIO 
+w repo w katalogu AR-z-ISTIO-SubsetLevelTrafficSplitting jest podfolder ISTIO-classic a w nim wszystkie obiekty do wdrożenia drugiego zestawu usług - jak sie wdroży obiekty z niego to mamy stan gdzie app07 jest oparte o ArgoRollouts a app08 to gołe ISTIO 
+```
+$ kk get vs
+NAME                GATEWAYS                             HOSTS                                                          AGE
+virtservice-app07   ["mesh","test-ar-istio/mygateway"]   ["app07.test-ar-istio.svc.cluster.local","uk.bookinfo7.com"]   7h51m
+virtservice-app08   ["mesh","test-ar-istio/mygateway"]   ["app08.test-ar-istio.svc.cluster.local","uk.bookinfo8.com"]   36m
+$ kk get dr
+NAME             HOST                                    AGE
+destrule-app07   app07.test-ar-istio.svc.cluster.local   7h52m
+destrule-app08   app08.test-ar-istio.svc.cluster.local   37m
+$ kk get gateway
+NAME        AGE
+mygateway   66m
+```
+
+
+(uwaga, gateway występuje 2 razy, w 2 plikach - są niemal identyczne ale ten drugi uzupełnia GW o dodatkowe hosty dla app08 (wystarczy zrobić diff na tych 2 plikach) )
+```$ diff EXPOSE_gateway_simple_MATCH_URI_PREFIX.yaml ISTIO-classic/EXPOSE_gateway_simple_MATCH_URI_PREFIX.yaml
+18,19c18,19
+<     #- app08.test-ar-istio.svc.cluster.local
+<     #- uk.bookinfo8.com
+---
+>     - app08.test-ar-istio.svc.cluster.local
+>     - uk.bookinfo8.com
+```
+### TESTY :
+testy na k8s-svc (wewnątrz klastra) wykonujemy z PODa consumera a testy połączenia via GW z jakiejś stacji na zewnątrz klastra (np z GCE stojącej obok węzłów GKE) 
+
+```nginx@consumer-58f6fd4c95-gnrmt:/$ curl app07:8080
+test-rollout-istio-dd4cc6cb4-lvjw2
+<br>2
+nginx@consumer-58f6fd4c95-gnrmt:/$ curl app07:8080
+test-rollout-istio-dd4cc6cb4-lvjw2
+<br>2
+
+$ kk get svc -n istio-system
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.108.1.52    10.128.0.5    15020:32604/TCP,443:30467/TCP,80:30423/TCP   5h45m
+istiod                 ClusterIP      10.108.5.9     <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP        5h45m
+istiod-asm-1162-2      ClusterIP      10.108.13.34   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP        5h45m
+
+slawek_wolak@instance-1:~$ curl -k --resolve uk.bookinfo7.com:80:10.128.0.5 http://uk.bookinfo7.com
+test-rollout-istio-dd4cc6cb4-lvjw2
+<br>2
+slawek_wolak@instance-1:~$```
+
+
