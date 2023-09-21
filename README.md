@@ -753,16 +753,26 @@ spec:
 
 
 w definicji AR jak widać jest wskazanie na dwa k8s-svc (canary-service i stable-service) oraz na virt-service 
+
 w wyniku działania AR powstaje 1 POD (lub 2 PODy jesli następuje wdrożenie nowej wersji rolloutu) 
+
 PODy te mają dodawane rollouts-pod-template-hash
+
 jednocześnie AR modyfikuje nasze k8s-SVC tak że ich selectory poza oryginalnym selector-name-app07 mają również 
+
 ```
+
   selector:
     name: app07
     rollouts-pod-template-hash: dd4cc6cb4
+
 ```
+
+
 w chwili gdy jest tylko jedna rewizja rolloutu te SVC wskazują na to samo:
+
 ```
+
 $ kk get po -o wide --show-labels
 NAME                                 READY   STATUS    RESTARTS   AGE   IP            NODE                                     NOMINATED NODE   READINESS GATES   LABELS
 test-rollout-istio-dd4cc6cb4-bjzkv   2/2     Running   0          22m   10.104.0.23   gke-central-default-pool-6ac74c87-ldjn   <none>           <none>            name=app07,rollouts-pod-template-hash=dd4cc6cb4,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=test-rollout-istio-dd4cc6cb4,service.istio.io/canonical-revision=latest,topology.istio.io/network=a-r-008-default
@@ -787,11 +797,16 @@ $ kk get ep
 NAME             ENDPOINTS          AGE
 canary-service   10.104.0.23:8080   43m
 stable-service   10.104.0.23:8080   43m
+
+
 ```
+
 
 z kolei serce układu czyli VirtService ma 2 destination , każda na inny k8s-svc , na stable-service ma w=100, na canary-service w=0 
 
+
 ```
+
 $ kk get vs
 NAME                GATEWAYS   HOSTS                                                            AGE
 virtservice-app07              ["app07-vs","uk.bookinfo7.com"]   42m
@@ -816,27 +831,37 @@ spec:
         host: canary-service
       weight: 0
 
+
 ```
+
 
 zaraz po  wykonaniu modyfikacji :
 
+
 ```
+
 $ kubectl argo rollouts set image test-rollout-istio app07=gimboo/nginx_nonroot3
 rollout "test-rollout-istio" image updated
+
 ```
 
 pojawia się drugi POD z innym rollouts-pod-template-hash :
 
+
 ```
+
 $ kk get po -o wide --show-labels
 NAME                                 READY   STATUS    RESTARTS   AGE   IP            NODE                                     NOMINATED NODE   READINESS GATES   LABELS
 test-rollout-istio-5bfbf9599-xl7mv   2/2     Running   0          10s   10.104.1.23   gke-central-default-pool-6ac74c87-w6d2   <none>           <none>            name=app07,rollouts-pod-template-hash=5bfbf9599,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=test-rollout-istio-5bfbf9599,service.istio.io/canonical-revision=latest,topology.istio.io/network=a-r-008-default
 test-rollout-istio-dd4cc6cb4-bjzkv   2/2     Running   0          26m   10.104.0.23   gke-central-default-pool-6ac74c87-ldjn   <none>           <none>            name=app07,rollouts-pod-template-hash=dd4cc6cb4,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=test-rollout-istio-dd4cc6cb4,service.istio.io/canonical-revision=latest,topology.istio.io/network=a-r-008-default
 
 ```
+
 k8s-SVC już wyglądają inaczej (tzn stable-service wygląda tak samo, ale canary-service zmienił sie tak że jego selector wyłapuje nowego PODa) :
 
+
 ```
+
 $ kk get svc stable-service -o yaml | grep rollouts-pod-template-hash
     rollouts-pod-template-hash: dd4cc6cb4
 $ kk get svc canary-service -o yaml | grep rollouts-pod-template-hash
@@ -849,7 +874,10 @@ stable-service   10.104.0.23:8080   49m
 
 ```
 
+
 Virt-service zmienił wagi:
+
+
 ```
 $ kk get vs virtservice-app07 -o yaml
 apiVersion: networking.istio.io/v1beta1
