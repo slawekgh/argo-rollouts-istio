@@ -449,3 +449,25 @@ test-rollout-istio-746b5594b8-pv4wr   2/2     Running   0          11m 
 ```
 
 
+
+## Jednym słowem proces dla Traffic-Splitting wygląda nastepująco:
+
+###Dla wersji z gołym ISTIO:
+
+ a) administrator powołuje 2 deploymenty + przykrywający je k8s-svc. (każdy Deploy ma inny label version=v1/v2) 
+ b) do tego dodaje DestinationRule która definiuje 2 subsety bazujące na tych labelach z version
+ c) do tego na koniec dodaje VirtualService w którym w .route.destination odwołuje się do tych 2 subsetów i ma wstawione w te 2 miejsca wstępne wagi
+ d) admin zaczyna administrować TrafficSplitingiem poprzez edycję tego VS wsadzając wagi 100/0, 90/10 itd 
+
+
+### Dla wersji z ArgoRollouts-ISTIO 
+ a) administrator zamiast 2xDeploy powołuje ROLLOUT w którym: 
+     - wskazuje na VirtService którym AR będzie kręcił via wstawianie wag (dlatego podaje się tam nazwę route - np "primary") 
+     - wskazuje na DestRule (podaje dla AR jej nazwę, canarySubsetName version=v2 , stableSubsetName version=v1) 
+     - określa steps dla promocji rolloutu oraz pause{} 
+     - emuluje Deploy (wskazuje image, resources itd) 
+ b) admin powołuje DestRule (yaml wsadowy (czyli ten z day0) jest inny niż dla gołego ISTIO, nie ma różnicowania, obydwa subsety muszą byc zrobione na czymś co jest takie same dla nich dwóch - potem AR natychmiast i w trybie ciągłym zmienia mu subsety ktore bazują od teraz _również_ na labelach rollouts-pod-template-hash=RANDOM_Number)
+ c) admin powołuje VirtService (również identyczny jak dla scenariusza z gołym ISTIO) ktorym już za chwilę AR będzie zarządzał - ale jedynie kręcąc w nim wagami 
+ d) to nie admin ale tym razem AR zaczyna zarządzać TraficSplitingiem poprzez ustawianie wag w VirtService - 100/0 i 95/5 ORAZ poprzez wstawanie do subsetów w naszej DestinationRule warunków opartych na rollouts-pod-template-hash
+
+
