@@ -373,9 +373,18 @@ kind: Rollout
 
 
 
-Dla przypomnienia w podejściu klasycznym (bez ARGO-rollout tylko czyste ważenie na istio destination-rules/subsets) jest taki mechanizm:są 2 x deploy-Server , jeden poza label name:app07 ma też label version v1 , drugi ma v2 dest rule (dla tego SERVER) ma zdefiniowane 2 subsety - jeden subset żyje na labels:version:v1 a drugi na v2 z kolei VirtService (dla tego deplojostwa SERVERowego) ma 1 route a w niej 2 destinations - jedna na subset1 a druga na subset2, jedna ma weight 100 a druga weight 0
-w skrócie:slawek@L530:~/ARGO-ROLLOUTS/AR/AR-z-ISTIO-SubsetLevelTrafficSplitting$ cat ../../_0_STARTER/virtual-service-Server-wagi.yml
-[...]  - route:
+Dla przypomnienia - w podejściu klasycznym (bez ARGO-rollout tylko czyste ważenie na istio destination-rules/subsets) mechanizm jest następujący:
+
+1. są 2 x deploy-Server , jeden poza label name:app07 ma też label version v1 , drugi ma v2 
+2. jest destination-rule (dla tego deployu SERVER) która ma zdefiniowane 2 subsety - jeden subset żyje na labels:version:v1 a drugi na v2 i
+3. z kolei VirtualService (dla tego deployu SERVER) ma 1 route a w niej 2 destinations - jedna na subset1 a druga na subset2, jedna ma weight 100 a druga weight 0
+
+w skrócie:
+
+```
+$ cat /virtual-service-Server-wagi.yml
+[...]
+  - route:
     - destination:
         host: app07.slawek.svc.cluster.local
         subset: version-v2
@@ -385,18 +394,20 @@ w skrócie:slawek@L530:~/ARGO-ROLLOUTS/AR/AR-z-ISTIO-SubsetLevelTrafficSplitting
         subset: version-v1
       weight: 0
 
-slawek@L530:~/ARGO-ROLLOUTS/AR/AR-z-ISTIO-SubsetLevelTrafficSplitting$ cat ../../_0_STARTER/destination-rule-Server-v1-v2.yml
-[...]  subsets:
+$ cat /destination-rule-Server-v1-v2.yml
+[...]
+  subsets:
   - labels:
       version: v1
     name: version-v1
   - labels:
       version: v2
     name: version-v2
-
+```
 
 
 Tu z kolei jest następująco:
+
 różnic między plikami VS i DestRule nie ma (pomijając że dla wersji z AR trzeba w DestRule wstawić jakiś label generyczny (np name=app07) +jest jedna drobna bo w VS jak jest route to tu ma name=primary) nie ma znaczenia jak ustawimy wagi w VS.yaml bo AR i tak zaraz przejmie sprawy 
 
 po wgraniu naszego destination-rule zostaje ona natychmiast zmodyfikowana przez AR:
