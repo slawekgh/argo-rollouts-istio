@@ -102,18 +102,14 @@ z kolei VirtualService (dla tego deployu SERVER) ma 1 route a w niej 2 destinati
 
 Administrator kręci wagami wstawiając 100_do_0, 5_do_95 itp 
 
-Powyższe to podstawy istiowych podstaw ale trzeba to mieć przed oczami przy analizie modeli opertych na Argo-Rollout
+Powyższe to podstawy istiowych podstaw ale trzeba to mieć przed oczami przy analizie modeli opartych na Argo-Rollout
 
 
 
 
-# ARGO ROLLOUTS BASICS
+# ARGO ROLLOUTS bez istio - BASICS
 
+Zasady działania AR , chwilowo bez istio 
 
+To również podstawy podstaw AR ale trzeba je zrozumieć żeby potem łączyć AR+ISTIO 
 
-
-## dwa
-### trzy
-
-text
-text
