@@ -12,6 +12,8 @@ Argo-Rollouts będzie w 2 opcjach - Host-level Traffic Splitting i Subset-level 
 
 # Instalacja Argo Rollouts
 
+## Instalacja obiektów w klastrze k8s
+
 ```
 $ kubectl create namespace argo-rollouts
 namespace/argo-rollouts created
@@ -33,6 +35,19 @@ secret/argo-rollouts-notification-secret created
 service/argo-rollouts-metrics created
 deployment.apps/argo-rollouts created
 ```
+
+
+## Instalacja kubectl-plugina 
+
+```
+curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
+chmod +x ./kubectl-argo-rollouts-darwin-amd64
+sudo mv ./kubectl-argo-rollouts-darwin-amd64 /usr/local/bin/kubectl-argo-rollouts
+```
+
+
+
+
 
 
 ## dwa
