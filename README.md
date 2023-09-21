@@ -45,12 +45,27 @@ chmod +x ./kubectl-argo-rollouts-darwin-amd64
 sudo mv ./kubectl-argo-rollouts-darwin-amd64 /usr/local/bin/kubectl-argo-rollouts
 ```
 
+
+
 # ISTIO bez Argo Rollouts 
 
 Zasady działania klasycznego Traffic Splitting w ISTIO 
 
-EDIT HERE ...
+w katalogu ISTIO-BASE tego repozytorium są odpowiednie YAMLe do wdrożenia:
 
+na klastrze k8s gdzie mamy postawione ISTIO tworzymy dowolny namespace 
+
+```
+kubectl create namespace test-istio
+kubectl config set-context --current --namespace=test-istio
+```
+
+nastepnie labelujemy ten namespaces zeby działał autoinject dla envoy-proxies:
+```
+kubectl label namespace test-istio istio-injection=enabled --overwrite
+kubectl label namespace test-istio istio-injection- istio.io/rev=asm-182-2 --overwrite
+kubectl label namespace test-istio istio-injection- istio.io/rev=asm-1162-2 --overwrite
+```
 
 
 
