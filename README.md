@@ -981,3 +981,41 @@ no ale jeśli do VS trzeba dorzucać gateway żeby z nim porozmawiać to zaczyna
   - admin powołuje 2 x k8s-SVC ( w selectory tych 2xk8s_svc wstawia coś co będzie wspólne dla 2 wersji PODów - np label=name=app07), potem AR natychmiast i w trybie ciągłym kręci selectorami tych 2 k8s-svc wstawiając im tam rollouts-pod-template-hash) 
   - admin powołuje VirtService (definiuje tam 2 x destination, każdy z nich wskazuje na osobny k8s-svc) - tym VS też już za chwilę zarządzał będzie AR  - ale jedynie kręcąc w nim wagami 
   - to nie admin ale oczywiście AR zaczyna zarządzać TraficSplitingiem poprzez ustawianie wag w VirtService - 100/0 i 95/5 ORAZ poprzez modyfikacje selectorów w 2 x k8s-svc
+
+
+
+
+
+to samo podejście jest prezentowane tu: https://argo-rollouts.readthedocs.io/en/stable/features/traffic-management/istio/#host-level-traffic-splitting
+podsumowano  tu zresztą dosyć analitycznie cały mechanizm host-level-traffic-splitting:
+
+*During the lifecycle of a Rollout update, Argo Rollouts will continuously:*
+
+*modify the canary Service spec.selector to contain the rollouts-pod-template-hash label of the canary ReplicaSet*
+*modify the stable Service spec.selector to contain the rollouts-pod-template-hash label of the stable ReplicaSet*
+*modify the VirtualService spec.http[].route[].weight to match the current desired canary weight*
+
+
+# Podsumowanie 
+
+podejście Subset-level Traffic Splitting wydaje się być ISTIO-way i jest naturalnym powieleniem dotychczasowych mechanizmów dla ważenia ruchu w ISTIO 
+podejście Host-level Traffic Splitting w wydaje się być nienaturalne i uciążliwe w próbie nałożenia go na klasyczne schematy ISTIO , dodatkowo nie da się łatwo korzystać z serwisów bez użycia gatewaya , deploymenty chcące łączyć sie wprost do canary/stable nie będą mogły zrobić tego naraz tylko muszą sobie wybrać do której konkretnie wersji chcą się łączyć 
+
+gdy poczyta się co nieco na ten temat to okazuje się że początkowo AR-ISTIO bazowały wyłącznie na Host-level Traffic Splitting które było krytykowane 
+po jakimś czasie pojawiło sie podejście oparte o Subset-level Traffic Splitting - dużo naturalniejsze i łatwe do zmapowania ze zwykłego Traffic Splittingu opartego na ISTIO 
+
+bardzo trafnie oceniono to tutaj (maj 2020) : 
+https://github.com/argoproj/argo-rollouts/issues/617
+
+*Currently, according to https://argoproj.github.io/argo-rollouts/features/traffic-management/istio/, Istio canary deployments require separate services for stable and canary. This is undesirable, as I understand in-mesh communications won't hit the virtualservice directly (there's no DNS entry added by default for those in the Kubernetes cluster). This forces microservice-to-microservice communication to choose whether to hit the stable service or the canary (hardcoded), or go to the gateway, or DNS entries to be added for the virtualservices, which is cumbersome and poorly documented.*
+
+*All Istio canary examples I could find use a single service, but have a destinationrule that splits them into 2 groups based on label selectors (for canary vs stable, or per version), then the virtualservice links this single service and splits the traffic accordingly*
+
+
+finalnie na prośbę community w okolicach Q1 2021 dodano obsługę Subset-level Traffic Splitting pozostawiając również na prośbę niezbyt udane Host-level Traffic Splitting
+https://github.com/argoproj/argo-rollouts/pull/985
+
+
+
+
+
