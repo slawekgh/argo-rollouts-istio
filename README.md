@@ -454,7 +454,7 @@ test-rollout-istio-746b5594b8-pv4wr   2/2     Running   0          11m 
 
 ### Dla wersji z gołym ISTIO:
 
- - administrator powołuje 2 deploymenty + przykrywający je k8s-svc. (każdy Deploy ma inny label version=v1/v2) 
+ - administrator powołuje 2 deploymenty + przykrywający je k8s-svc. (każdy Deploy ma inny label version=v1/v2) 
  - do tego dodaje DestinationRule która definiuje 2 subsety bazujące na tych labelach z version
  - do tego na koniec dodaje VirtualService w którym w .route.destination odwołuje się do tych 2 subsetów i ma wstawione w te 2 miejsca wstępne wagi
  - admin zaczyna administrować TrafficSplitingiem poprzez edycję tego VS wsadzając wagi 100/0, 90/10 itd 
