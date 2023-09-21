@@ -114,7 +114,7 @@ Zasady działania AR , chwilowo bez istio
 To również podstawy podstaw AR ale trzeba je zrozumieć żeby potem łączyć AR+ISTIO 
 
 
-A Rollout is Kubernetes workload resource which is equivalent to a Kubernetes Deployment object. It is intended to replace a Deployment object in scenarios when more advanced deployment or progressive delivery functionality is needed
+*A Rollout is Kubernetes workload resource which is equivalent to a Kubernetes Deployment object. It is intended to replace a Deployment object in scenarios when more advanced deployment or progressive delivery functionality is needed*
 
 
 Katalog z plikami YAML w tym repo: AR-bez-ISTIO
