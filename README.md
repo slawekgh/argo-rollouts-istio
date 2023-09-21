@@ -668,7 +668,9 @@ mygateway   66m
 ### TESTY :
 testy na k8s-svc (wewnątrz klastra) wykonujemy z PODa consumera a testy połączenia via GW z jakiejś stacji na zewnątrz klastra (np z GCE stojącej obok węzłów GKE) 
 
-```nginx@consumer-58f6fd4c95-gnrmt:/$ curl app07:8080
+```
+
+nginx@consumer-58f6fd4c95-gnrmt:/$ curl app07:8080
 test-rollout-istio-dd4cc6cb4-lvjw2
 <br>2
 nginx@consumer-58f6fd4c95-gnrmt:/$ curl app07:8080
@@ -681,9 +683,11 @@ istio-ingressgateway   LoadBalancer   10.108.1.52    10.128.0.5    15020:3
 istiod                 ClusterIP      10.108.5.9     <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP        5h45m
 istiod-asm-1162-2      ClusterIP      10.108.13.34   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP        5h45m
 
-slawek_wolak@instance-1:~$ curl -k --resolve uk.bookinfo7.com:80:10.128.0.5 http://uk.bookinfo7.com
+slawek@instance-1:~$ curl -k --resolve uk.bookinfo7.com:80:10.128.0.5 http://uk.bookinfo7.com
 test-rollout-istio-dd4cc6cb4-lvjw2
 <br>2
-slawek_wolak@instance-1:~$```
+slawek@instance-1:~$
+
+```
 
 
