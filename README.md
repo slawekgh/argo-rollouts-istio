@@ -971,3 +971,13 @@ no ale jeśli do VS trzeba dorzucać gateway żeby z nim porozmawiać to zaczyna
 
 
 
+### ZRÓBMY ZATEM PODSUMOWANIE JAK DZIAŁA Host-level Traffic-Split 
+
+ - administrator zamiast 2xDeploy powołuje ROLLOUT w którym:
+      - wskazuje na VirtService którym AR będzie kręcił via wstawianie wag (dlatego podaje się tam nazwę route - np "primary") 
+      - wskazuje na 2 x k8s-SVC (podaje tylko ich nazwy)  
+      - określa steps dla promocji rolloutu oraz pause{} 
+      - emuluje Deploy (wskazuje image, resources itd) 
+  - admin powołuje 2 x k8s-SVC ( w selectory tych 2xk8s_svc wstawia coś co będzie wspólne dla 2 wersji PODów - np label=name=app07), potem AR natychmiast i w trybie ciągłym kręci selectorami tych 2 k8s-svc wstawiając im tam rollouts-pod-template-hash) 
+  - admin powołuje VirtService (definiuje tam 2 x destination, każdy z nich wskazuje na osobny k8s-svc) - tym VS też już za chwilę zarządzał będzie AR  - ale jedynie kręcąc w nim wagami 
+  - to nie admin ale oczywiście AR zaczyna zarządzać TraficSplitingiem poprzez ustawianie wag w VirtService - 100/0 i 95/5 ORAZ poprzez modyfikacje selectorów w 2 x k8s-svc
