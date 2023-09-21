@@ -696,10 +696,10 @@ slawek@instance-1:~$
 
 
 
-wróćmy do metody omawianej w getting-started:
-https://argo-rollouts.readthedocs.io/en/stable/getting-started/istio/
+wróćmy do metody omawianej w getting-started: https://argo-rollouts.readthedocs.io/en/stable/getting-started/istio/
 
 omawiają tu bowiem nieco inną koncepcję - Host-level Traffic Splitting
+
 *The first approach to traffic splitting using Argo Rollouts and Istio, is splitting between two hostnames, or Kubernetes Services: a canary Service and a stable Service*
 
 
@@ -709,8 +709,12 @@ Folder w tym repo z plikami YAML: AR-z-ISTIO-HostLevel-LevelTrafficSplitting
 kubectl create ns test-ar-istio-2
 kubectl config set-context --current --namespace=test-ar-istio-2
 kubectl -n istio-system get pods -l app=istiod --show-labels | grep rev
-kubectl label namespace test-ar-istio-2 istio-injection- istio.io/rev=asm-1162-2 --overwrite```
+kubectl label namespace test-ar-istio-2 istio-injection- istio.io/rev=asm-1162-2 --overwrite
+
+```
+
 Koncepcja ta bazuje na AR który definiuje :
+
 ```
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -744,7 +748,10 @@ spec:
       - image: gimboo/nginx_nonroot
         name: app07
         resources: {}
+
 ```
+
+
 w definicji AR jak widać jest wskazanie na dwa k8s-svc (canary-service i stable-service) oraz na virt-service 
 w wyniku działania AR powstaje 1 POD (lub 2 PODy jesli następuje wdrożenie nowej wersji rolloutu) 
 PODy te mają dodawane rollouts-pod-template-hash
