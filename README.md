@@ -470,4 +470,113 @@ test-rollout-istio-746b5594b8-pv4wr   2/2     Running   0          11m 
  - admin powołuje VirtService (również identyczny jak dla scenariusza z gołym ISTIO) ktorym już za chwilę AR będzie zarządzał - ale jedynie kręcąc w nim wagami 
  - to nie admin ale tym razem AR zaczyna zarządzać TraficSplitingiem poprzez ustawianie wag w VirtService - 100/0 i 95/5 ORAZ poprzez wstawanie do subsetów w naszej DestinationRule warunków opartych na rollouts-pod-template-hash
 
+Wróćmy do zmian w rolloutach - do tej pory zmienialiśmy jedynie obraz (via kubectl argo rollouts set image test-rollout-istio app07=gimboo/nginx_nonroot3)
+sprawdźmy jak to działa ale z podmianą CM, a zatem wprowadźmy nowy rollout zawierający odwołanie do CM + nowy obiekt CM
+```rollout-deploy-server-ISTIO-ConfigMap.yaml
+config-map-01.yaml
+```
+różnica w kontekście deploymentu (a właściwie oczywiście jego emulacji) jest następująca:
+```$ diff rollout-deploy-server-ISTIO.yaml rollout-deploy-server-ISTIO-ConfigMap.yaml.optional
+35c35,43
+<
+---
+>         volumeMounts:
+>         - name: config
+>           mountPath: "/config"
+>           readOnly: true
+>       volumes:
+>       - name: config
+>         configMap:
+>           # Provide the name of the ConfigMap you want to mount.
+>           name: cm-01
+```
+```kk apply -f  rollout-deploy-server-ISTIO-ConfigMap.yaml
+kk apply -f config-map-01.yaml```
+
+Po wgraniu nowej wersji rolloutu (to oczywiście ten sam AR ale z jedną małą zmianą bo ten AR używa od tej pory CM) pojawia sie nowy rollout , zaś jak się wejdzie na PODa to widać zmienne z ConfigMapy:
+```$ kk exec -ti test-rollout-istio-8675765c8c-4ffmt bash
+nginx@test-rollout-istio-8675765c8c-4ffmt:/$ cat /config/key01 ; echo
+alamakota
+nginx@test-rollout-istio-8675765c8c-4ffmt:/$ cat /config/key02 ; echo
+ma
+nginx@test-rollout-istio-8675765c8c-4ffmt:/$ cat /config/key03 ; echo
+kota
+```
+podmieńmy teraz ale znowu nie obraz ale ConfigMmapę - załadujmy kolejną nową:
+```$ cat config-map-02.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-02
+data:
+  key01: "alamakota 2"
+  key02: "ma 2 "
+  key03: "kota 2"
+
+$ kk apply -f  config-map-02.yaml
+configmap/cm-02 created
+
+$ kk get cm
+NAME               DATA   AGE
+cm-01              3      17m
+cm-02              3      6s
+kube-root-ca.crt   1      5h
+
+
+```
+
+
+idąc za: https://argo-rollouts.readthedocs.io/en/stable/getting-started/#2-updating-a-rollout
+*Just as with Deployments, any change to the Pod template field (spec.template) results in a new version (i.e. ReplicaSet) to be deployed.* * Updating a Rollout involves modifying the rollout spec, typically changing the container image field with a new version, and then running kubectl apply against the new manifest. As a convenience, the rollouts plugin provides a set image command, which performs these steps against the live rollout object in-place*
+
+Jakakolwiek modyfikacja AR via set image czy jakiekolwiek zmiany w definicji AR powodują uruchomienie mechanizmu rolloutu 
+Jedno co dziwi to jak widać do set image dorobiono CLI (kubectl argo rollouts set image test-rollout-istio app07=gimboo/nginx_nonroot2) a do innych modyfikacji już nie 
+zatem musimy sami sobie zmienić w rollout.yaml wskazanie na inną config-mapę 
+```$ diff rollout-deploy-server-ISTIO-ConfigMap.yaml rollout-deploy-server-ISTIO-ConfigMap-02.yaml
+43c43
+<           name: cm-01
+---
+>           name: cm-02
+
+$ kk apply -f  rollout-deploy-server-ISTIO-ConfigMap-02.yaml
+rollout.argoproj.io/test-rollout-istio configured
+```
+pojawił się nowy POD i pojawił się nowy ROLLOUT 
+niby mała zmiana (zamontowanie innej CM) a jednak jest zmianą -  więc AR powołało nową revision i wstrzymało ją z wagą na 5% w VS
+```$ kubectl argo rollouts get rollout test-rollout-istio
+Name:            test-rollout-istio
+Namespace:       test-ar-istio
+Status:          ॥ Paused
+Message:         CanaryPauseStep
+Strategy:        Canary
+  Step:          1/2
+  SetWeight:     5
+  ActualWeight:  5
+Images:          gimboo/nginx_nonroot (canary, stable)
+Replicas:
+  Desired:       1
+  Current:       2
+  Updated:       1
+  Ready:         2
+  Available:     2
+
+NAME                                            KIND        STATUS        AGE   INFO
+⟳ test-rollout-istio                            Rollout     ॥ Paused      5h4m  
+├──# revision:12                                                                
+│  └──⧉ test-rollout-istio-549bbd66c6           ReplicaSet    Healthy     18s   canary
+│     └──□ test-rollout-istio-549bbd66c6-h5km8  Pod           Running     18s   ready:2/2
+├──# revision:11                                                                
+│  └──⧉ test-rollout-istio-8675765c8c           ReplicaSet    Healthy     21m   stable
+│     └──□ test-rollout-istio-8675765c8c-4ffmt  Pod           Running     21m   ready:2/2
+
+
+$ kk exec -ti test-rollout-istio-8675765c8c-4ffmt -- cat /config/key01 ; echo
+alamakota
+$ kk exec -ti test-rollout-istio-549bbd66c6-h5km8 -- cat /config/key01 ; echo
+alamakota 2
+```
+warto zaznaczyć że w AR da się podmieniać via CLI tylko image - jakiekolwiek inne zmiany trzeba robić ręcznie modyfikując rollout spec
+zaś modyfikując AR otrzymujemy nową rewizję AR 
+*Updating a Rollout involves modifying the rollout spec*
+
 
