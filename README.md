@@ -45,7 +45,7 @@ chmod +x ./kubectl-argo-rollouts-darwin-amd64
 sudo mv ./kubectl-argo-rollouts-darwin-amd64 /usr/local/bin/kubectl-argo-rollouts
 ```
 
-## ISTIO bez Argo Rollouts 
+# ISTIO bez Argo Rollouts 
 
 Zasady działania klasycznego Traffic Splitting w ISTIO 
 
