@@ -999,6 +999,8 @@ podsumowano  tu zresztą dosyć analitycznie cały mechanizm host-level-traffic
 # Podsumowanie 
 
 podejście Subset-level Traffic Splitting wydaje się być ISTIO-way i jest naturalnym powieleniem dotychczasowych mechanizmów dla ważenia ruchu w ISTIO 
+
+
 podejście Host-level Traffic Splitting w wydaje się być nienaturalne i uciążliwe w próbie nałożenia go na klasyczne schematy ISTIO , dodatkowo nie da się łatwo korzystać z serwisów bez użycia gatewaya , deploymenty chcące łączyć sie wprost do canary/stable nie będą mogły zrobić tego naraz tylko muszą sobie wybrać do której konkretnie wersji chcą się łączyć 
 
 gdy poczyta się co nieco na ten temat to okazuje się że początkowo AR-ISTIO bazowały wyłącznie na Host-level Traffic Splitting które było krytykowane 
