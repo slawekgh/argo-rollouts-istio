@@ -49,7 +49,7 @@ sudo mv ./kubectl-argo-rollouts-darwin-amd64 /usr/local/bin/kubectl-argo-rollout
 
 Zasady działania klasycznego Traffic Splitting w ISTIO 
 
-
+EDIT HERE ...
 
 
 
