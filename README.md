@@ -95,8 +95,11 @@ zmiany w Traffic-Splitting realizujemy poprzez edycję virtual-service-Server-wa
  ```
 
 Mechanizm w skrócie polega na tym że są 2 x deploy-Server , jeden poza label name:app07 ma też label version v1 , drugi ma v2 
+
 DestinationRule (dla tego deployu SERVER) ma zdefiniowane 2 subsety - jeden subset żyje na labels:version:v1 a drugi na v2 
+
 z kolei VirtualService (dla tego deployu SERVER) ma 1 route a w niej 2 destinations - jedna na subset1 a druga na subset2
+
 Administrator kręci wagami wstawiając 100_do_0, 5_do_95 itp 
 
 Powyższe to podstawy istiowych podstaw ale trzeba to mieć przed oczami przy analizie modeli opertych na Argo-Rollout
