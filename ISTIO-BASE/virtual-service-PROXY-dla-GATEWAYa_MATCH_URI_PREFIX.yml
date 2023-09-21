@@ -1,0 +1,44 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: proxy
+  #namespace: istio-system
+spec:
+  hosts:
+  - uk.bookinfo.com
+  gateways:
+  - slawek/mygateway    
+    #WARTO ZBADAC TEN KLUCZ: - mesh
+  http:
+  - match:
+    - uri: 
+        prefix: "/wersja2"
+    rewrite:      #ten rewrite tylko dlatego ze nasz nginx nie umie takiego urla wiec trzeba wrocic do oryginalu
+      uri: "/"
+    route:
+    - destination:
+        #host: proxy
+        host: app07.slawek.svc.cluster.local
+        subset: version-v2
+      weight: 100
+    - destination:
+        #host: proxy
+        host: app07.slawek.svc.cluster.local
+        subset: version-v1
+      weight: 0
+  - match:
+    - uri: 
+        prefix: "/wersja1"
+    rewrite:      #ten rewrite tylko dlatego ze nasz nginx nie umie takiego urla wiec trzeba wrocic do oryginalu
+      uri: "/"
+    route:
+    - destination:
+        #host: proxy
+        host: app07.slawek.svc.cluster.local
+        subset: version-v2
+      weight: 0
+    - destination:
+        #host: proxy
+        host: app07.slawek.svc.cluster.local
+        subset: version-v1
+      weight: 100
